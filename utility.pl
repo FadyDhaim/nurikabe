@@ -17,7 +17,8 @@ list_concat([H|T1], L2, [H|T3]) :- list_concat(T1, L2, T3).
 
 list_delete_element(Element, Element, []).
 list_delete_element(Element, [Element|Tail], Tail).
-list_delete_element(Element, [Head, Tail], [Head| ResultTail]):- list_delete_element(Element, Tail, ResultTail).
+list_delete_element(Element, [Head| Tail], [Head| ResultTail]):- list_delete_element(Element, Tail, ResultTail).
+
 count_down(L, H) :-
    between(L, H, X),
    Y is H - (X - L),
