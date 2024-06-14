@@ -15,23 +15,15 @@ list_length([_|TAIL],N) :- list_length(TAIL,N1), N is N1 + 1.
 list_concat([], L, L).
 list_concat([H|T1], L2, [H|T3]) :- list_concat(T1, L2, T3).
 
+
+% deletion Operation
 list_delete_element(Element, [Element|Tail], Tail).
 list_delete_element(Element, [Head| Tail], [Head| ResultTail]):- list_delete_element(Element, Tail, ResultTail).
 
-count_down(L, H) :-
-   between(L, H, X),
-   Y is H - (X - L),
-   write(Y), nl.
-   
-count_up(L, H) :-
-   between(L, H, X),
-   write(X), nl.
 
+% add Operations, unshift = enqueue = add first
+list_unshift_element(Element, List, [Element|List]).
 
-count_to_10(10) :- write(10),nl.
-count_to_10(X) :-
-   write(X),nl,
-   Y is X + 1,
-   count_to_10(Y).
-count_to_10 :-
-    count_to_10(0).
+% add last (as of stack)
+list_push_element(Element, [], [Element]).
+list_push_element(Element, [H|T], [H|R]) :- list_push_element(Element, T, R).
