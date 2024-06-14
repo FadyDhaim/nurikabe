@@ -1,4 +1,5 @@
 % fixed cells
+% fxd_cell(row, column, number of cells in the island)
 fxd_cell(1, 6, 3).
 fxd_cell(1, 8, 3).
 fxd_cell(3, 7, 3).
