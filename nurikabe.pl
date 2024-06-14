@@ -13,6 +13,7 @@ fxd_cell(9, 4, 4).
 
 
 % solve
+% solve_cell(row, column, land or sea)
 solve_cell(1,1,blue).
 solve_cell(1,3,green).
 solve_cell(1,4,green).
