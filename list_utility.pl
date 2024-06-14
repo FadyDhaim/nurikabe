@@ -16,14 +16,33 @@ list_concat([], L, L).
 list_concat([H|T1], L2, [H|T3]) :- list_concat(T1, L2, T3).
 
 
-% deletion Operation
+% deletion Operations
+% remove specific element
 list_delete_element(Element, [Element|Tail], Tail).
 list_delete_element(Element, [Head| Tail], [Head| ResultTail]):- list_delete_element(Element, Tail, ResultTail).
 
+%remove first
+list_shift([], []).
+list_shift([H|T], T).
 
-% add Operations, unshift = enqueue = add first
+%remove last
+list_pop([H|[]],[]).
+list_pop([H|T], [H|R]):- list_pop(T, R).
+
+% add Operations
+% unshift = enqueue = add first
+list_unshift_element(Element, [], [Element]).
 list_unshift_element(Element, List, [Element|List]).
 
 % add last (as of stack)
 list_push_element(Element, [], [Element]).
 list_push_element(Element, [H|T], [H|R]) :- list_push_element(Element, T, R).
+
+% L = [1,2,3], [] =>  R = [1]
+% L = [2, 3] , [] => R = [2, 1]
+% L = [3], [2, 1] => R = [3, 2, 1]
+% L = [] => R = [3, 2, 1]
+
+list_reverse([], R, R).
+list_reverse([H|T],RTemp, R):- list_unshift_element(H, RTemp, NewRTemp), list_reverse(T, NewRTemp, R).
+list_reverse(List, R) :- list_reverse(List, [], R).
