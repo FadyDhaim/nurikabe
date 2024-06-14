@@ -15,7 +15,6 @@ list_length([_|TAIL],N) :- list_length(TAIL,N1), N is N1 + 1.
 list_concat([], L, L).
 list_concat([H|T1], L2, [H|T3]) :- list_concat(T1, L2, T3).
 
-list_delete_element(Element, Element, []).
 list_delete_element(Element, [Element|Tail], Tail).
 list_delete_element(Element, [Head| Tail], [Head| ResultTail]):- list_delete_element(Element, Tail, ResultTail).
 
