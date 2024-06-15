@@ -110,7 +110,7 @@ solve_cell(9, 9, green).
 
 is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
 is_blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
-
+is_cell_of_color(Row, Column, Color) :- (Color == green -> is_green_cell(Row, Column); Color == blue -> is_blue_cell(Row, Column)).
 % طباعة الرقعة
 print_board :-
     nl,
@@ -126,34 +126,20 @@ print_board :-
     fail.
 print_board :- nl.
 
-% Find adjacent cells to a green cell
-adjacent_cells_to_green_at(Row, Column, AdjacentCells) :-
+
+% ايجاد الخلايا المجاورة لخلية من نفس اللون
+adjacent_cells_to_cell_of_color(Row, Column, Color, AdjacentCells) :-
+    grid_size(Size),
     findall(
         [R, C],
         (
-            (R is Row - 1, C is Column, R > 0, is_green_cell(R, C));
-            (R is Row + 1, C is Column, grid_size(Size), R =< Size, is_green_cell(R, C));
-            (R is Row, C is Column - 1, C > 0, is_green_cell(R, C));
-            (R is Row, C is Column + 1, grid_size(Size), C =< Size, is_green_cell(R, C))
+            (R is Row - 1, C is Column, R > 0, is_cell_of_color(R, C, Color));
+            (R is Row + 1, C is Column, R =< Size, is_cell_of_color(R, C, Color));
+            (R is Row, C is Column - 1, C > 0, is_cell_of_color(R, C, Color)); 
+            (R is Row, C is Column + 1, C =< Size, is_cell_of_color(R, C, Color))
         ),
         AdjacentCells).
 
-% Find adjacent cells to a blue cell
-adjacent_cells_to_blue_at(Row, Column, AdjacentCells) :-
-    findall(
-        [R, C],
-        (
-            (R is Row - 1, C is Column, R > 0, is_blue_cell(R, C));
-            (R is Row + 1, C is Column, grid_size(Size), R =< Size, is_blue_cell(R, C));
-            (R is Row, C is Column - 1, C > 0, is_blue_cell(R, C));
-            (R is Row, C is Column + 1, grid_size(Size), C =< Size, is_blue_cell(R, C))
-        ),
-        AdjacentCells).
-
-% Find adjacent cells to a cell based on its color
-adjacent_cells_to(Row, Column, AdjacentCells) :-
-    (is_green_cell(Row, Column) -> adjacent_cells_to_green_at(Row, Column, AdjacentCells);
-    is_blue_cell(Row, Column) -> adjacent_cells_to_blue_at(Row, Column, AdjacentCells)).
 
 
 % Find all connected cells starting from (Row, Column)
