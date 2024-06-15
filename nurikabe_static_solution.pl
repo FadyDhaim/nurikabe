@@ -115,13 +115,11 @@ print_board(Size) :-
     fail.
 print_board(_) :- nl.
 
-% Load the validation module
-% :- use_module(nurikabe_validator).
-% (validate ->
-%         writeln('Valid solution');
-%         writeln('Invalid solution')).
+:- use_module(nurikabe_validator).
 
 
-print_board :- print_board(9).
-% Entry point
-:- initialization(print_board).
+print_and_validate :- print_board(9), (validate ->
+        writeln('Valid solution');
+        writeln('Invalid solution')).
+    
+:- print_and_validate.
