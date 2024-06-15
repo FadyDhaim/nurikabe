@@ -99,11 +99,6 @@ solve_cell(9, 7, blue).
 % solve_cell(9, 8, green).
 solve_cell(9, 9, green).
 
-% Entry point
-:- initialization(solve_cells).
-
-solve_cells :-
-    write('Static Nurikabe solution loaded.').
 
 % طباعة الرقعة
 print_board(Size) :-
@@ -122,9 +117,11 @@ print_board(_) :- nl.
 
 % Load the validation module
 % :- use_module(nurikabe_validator).
-
-% Validate the solution
-:- print_board(9).
 % (validate ->
 %         writeln('Valid solution');
 %         writeln('Invalid solution')).
+
+
+print_board :- print_board(9).
+% Entry point
+:- initialization(print_board).
