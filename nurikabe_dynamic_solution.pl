@@ -24,8 +24,9 @@ print_board(Size) :-
     (fxd_cell(Row, Col, Num) ->
         write(Num)
     ; solve_cell(Row, Col, Color) ->
-        (Color =:= green -> write('G') ; write('B'))
-    ; write('●')),
+        (Color == green -> write('G') ; write('B'))
+    ; write('_')),
+    write(' '),
     (Col =:= Size -> nl ; true),
     fail.
 print_board(_) :- nl.
@@ -51,12 +52,12 @@ solve_partially :-
 solve :-
     initialize_game,
     solve_partially,
-    (one_sea ->
+    (validate ->
         writeln('Valid solution');
         writeln('Invalid solution')).
 
 % متل امبورت ل ملف تاني 
 :- use_module(nurikabe_validator).
 
-% Start solving
+% نقطة البداية
 :- solve.

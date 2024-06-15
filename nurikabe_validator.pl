@@ -1,4 +1,4 @@
-:- module(nurikabe_validator, [validate/0, one_sea/0]).
+:- module(nurikabe_validator, [validate/0]).
 
 % Check if all sea cells (blue) are connected
 one_sea :-
@@ -11,22 +11,18 @@ no_2x2_blocks :-
         solve_cell(R1, C, blue), solve_cell(R1, C1, blue), R1 is R+1).
 
 % Check if each numbered cell is part of a white island of connected white cells
-valid_islands :-
+island_number_equals_island_size :-
     \+ (fxd_cell(R, C, N), 
         \+ (island_size(R, C, N, [], Island), length(Island, L), L =:= N)).
 
 % Check if two islands are connected
-islands_not_connected :-
+one_fixed_cell_in_island :-
     findall((R,C), solve_cell(R, C, green), GreenCells),
     \+ (member((R, C), GreenCells), member((R1, C1), GreenCells), 
         R1 is R+1, C1 is C+1, 
         solve_cell(R, C1, green), solve_cell(R1, C, green)).
 
-% Validate the solution
-validate :-
-    (one_sea, no_2x2_blocks, valid_islands, islands_not_connected ->
-        writeln('The solution is valid');
-        writeln('The solution is invalid')).
+
 
 % Helper predicate to check connectivity of cells
 all_connected([Cell|Cells]) :-
@@ -62,3 +58,9 @@ island_size_neighbors([(R,C)|Neighbors], N, Visited, Island) :-
     island_size(R, C, N, Visited, NewVisited),
     island_size_neighbors(Neighbors, N, NewVisited, Island).
 
+
+% Validate the solution
+validate :-
+    (one_sea, no_2x2_blocks, island_number_equals_island_size, one_fixed_cell_in_island ->
+        writeln('The solution is valid');
+        writeln('The solution is invalid')).
