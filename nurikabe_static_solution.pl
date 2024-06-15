@@ -142,26 +142,11 @@ adjacent_cells_to_cell_of_color(Row, Column, Color, AdjacentCells) :-
 
 
 
-% Find all connected cells starting from (Row, Column)
-connected_cells(Row, Column, ConnectedCells) :-
-    connected_cells_helper(Row, Column, [], ConnectedCells).
+% ايجاد مجموعة الخلايا الموصلة ان كان جزيرة او بحر
+%كود لازم ينكتب
 
-% Helper predicate for finding connected cells
-connected_cells_helper(Row, Column, Visited, ConnectedCells) :-
-    \+ member([Row, Column], Visited),
-    append(Visited, [[Row, Column]], NewVisited),
-    adjacent_cells_to(Row, Column, AdjacentCells),
-    findall(
-        SubConnectedCells,
-        (
-            member([AdjRow, AdjCol], AdjacentCells),
-            connected_cells_helper(AdjRow, AdjCol, NewVisited, SubConnectedCells)
-        ),
-        SubConnectedCellsList
-    ),
-    flatten([[[Row, Column]] | SubConnectedCellsList], ConnectedCells).
 
-% Validation Rules
+% شروط التحقق الاربعة
 one_blue_region :-
     findall([Row, Column], is_blue_cell(Row, Column), BlueCells),
     (BlueCells = [] -> true;
@@ -193,10 +178,9 @@ one_fixed_cell_in_green_region :-
             findall([FR, FC], (member([FR, FC], ConnectedGreenCells), fxd_cell(FR, FC, _)), FixedCellsInGreen),
             length(FixedCellsInGreen, 1))).
 
-% Validate the solution
+
 validate :- one_blue_region, no_2x2_blue_blocks, green_region_number_equals_size, one_fixed_cell_in_green_region.
 
-% Print the board and validate the solution
 print_and_validate :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
 % Start printing and validating
