@@ -108,10 +108,8 @@ solve_cell(9, 5, green).
 solve_cell(9, 7, blue).
 solve_cell(9, 9, green).
 
-green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
-blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
-is_green(Color) :- Color == green.
-is_blue(Color) :- Color == blue.
+is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
+is_blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
 
 % طباعة الرقعة
 print_board :-
@@ -120,7 +118,7 @@ print_board :-
     (fxd_cell(R, C, Number) ->
         write(Number)
     ; solve_cell(R, C, Color) ->
-        (is_green(Color) -> write('G') ; write('B'))
+        (Color == green -> write('G') ; write('B'))
     ; write('_')),
     write(' '),
     grid_size(Size),
@@ -133,10 +131,10 @@ adjacent_cells_to_green_at(Row, Column, AdjacentCells) :-
     findall(
         [R, C],
         (
-            (R is Row - 1, C is Column, R > 0, green_cell(R, C));
-            (R is Row + 1, C is Column, grid_size(Size), R =< Size, green_cell(R, C));
-            (R is Row, C is Column - 1, C > 0, green_cell(R, C));
-            (R is Row, C is Column + 1, grid_size(Size), C =< Size, green_cell(R, C))
+            (R is Row - 1, C is Column, R > 0, is_green_cell(R, C));
+            (R is Row + 1, C is Column, grid_size(Size), R =< Size, is_green_cell(R, C));
+            (R is Row, C is Column - 1, C > 0, is_green_cell(R, C));
+            (R is Row, C is Column + 1, grid_size(Size), C =< Size, is_green_cell(R, C))
         ),
         AdjacentCells).
 
@@ -145,17 +143,17 @@ adjacent_cells_to_blue_at(Row, Column, AdjacentCells) :-
     findall(
         [R, C],
         (
-            (R is Row - 1, C is Column, R > 0, blue_cell(R, C));
-            (R is Row + 1, C is Column, grid_size(Size), R =< Size, blue_cell(R, C));
-            (R is Row, C is Column - 1, C > 0, blue_cell(R, C));
-            (R is Row, C is Column + 1, grid_size(Size), C =< Size, blue_cell(R, C))
+            (R is Row - 1, C is Column, R > 0, is_blue_cell(R, C));
+            (R is Row + 1, C is Column, grid_size(Size), R =< Size, is_blue_cell(R, C));
+            (R is Row, C is Column - 1, C > 0, is_blue_cell(R, C));
+            (R is Row, C is Column + 1, grid_size(Size), C =< Size, is_blue_cell(R, C))
         ),
         AdjacentCells).
 
 % Find adjacent cells to a cell based on its color
 adjacent_cells_to(Row, Column, AdjacentCells) :-
-    (green_cell(Row, Column) -> adjacent_cells_to_green_at(Row, Column, AdjacentCells);
-    blue_cell(Row, Column) -> adjacent_cells_to_blue_at(Row, Column, AdjacentCells)).
+    (is_green_cell(Row, Column) -> adjacent_cells_to_green_at(Row, Column, AdjacentCells);
+    is_blue_cell(Row, Column) -> adjacent_cells_to_blue_at(Row, Column, AdjacentCells)).
 
 
 % Find all connected cells starting from (Row, Column)
@@ -179,7 +177,7 @@ connected_cells_helper(Row, Column, Visited, ConnectedCells) :-
 
 % Validation Rules
 one_blue_region :-
-    findall([Row, Column], blue_cell(Row, Column), BlueCells),
+    findall([Row, Column], is_blue_cell(Row, Column), BlueCells),
     (BlueCells = [] -> true;
     BlueCells = [[StartRow, StartColumn] | _],
     connected_cells(StartRow, StartColumn, ConnectedBlueCells),
@@ -189,12 +187,12 @@ one_blue_region :-
 no_2x2_blue_blocks :-
     \+ (between(1, 8, Row),
         between(1, 8, Column),
-        blue_cell(Row, Column),
+        is_blue_cell(Row, Column),
         NextRow is Row + 1,
-        blue_cell(NextRow, Column),
+        is_blue_cell(NextRow, Column),
         NextColumn is Column + 1,
-        blue_cell(Row, NextColumn),
-        blue_cell(NextRow, NextColumn)).
+        is_blue_cell(Row, NextColumn),
+        is_blue_cell(NextRow, NextColumn)).
 
 green_region_number_equals_size :-
     findall([Row, Column, Size], fxd_cell(Row, Column, Size), FixedCells),
