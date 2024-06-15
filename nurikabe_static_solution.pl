@@ -112,23 +112,21 @@ green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, gre
 blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
 is_green(Color) :- Color == green.
 is_blue(Color) :- Color == blue.
-% طباعة الرقعة
 
+% طباعة الرقعة
 print_board :-
     nl,
     row(R), column(C),
     (fxd_cell(R, C, Number) ->
         write(Number)
     ; solve_cell(R, C, Color) ->
-        (Color == green -> write('G') ; write('B'))
+        (is_green(Color) -> write('G') ; write('B'))
     ; write('_')),
     write(' '),
     grid_size(Size),
     (C =:= Size -> nl ; true),
     fail.
 print_board :- nl.
-
-
 
 % Find adjacent cells to a green cell
 adjacent_cells_to_green_at(Row, Column, AdjacentCells) :-
