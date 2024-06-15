@@ -197,7 +197,7 @@ one_fixed_cell_in_green_region :-
 validate :- one_blue_region, no_2x2_blue_blocks, green_region_number_equals_size, one_fixed_cell_in_green_region.
 
 % Print the board and validate the solution
-print_and_validate :- print_board(9), (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+print_and_validate :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
 % Start printing and validating
 :- print_and_validate.
