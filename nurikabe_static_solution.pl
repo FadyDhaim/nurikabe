@@ -111,6 +111,7 @@ solve_cell(9, 9, green).
 is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
 is_blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
 is_cell_of_color(Row, Column, Color) :- (Color == green -> is_green_cell(Row, Column); Color == blue -> is_blue_cell(Row, Column)).
+get_cell_color(Row, Column, Color) :- (is_green_cell(Row, Column), Color = green; is_blue_cell(Row, Column), Color = blue).
 % طباعة الرقعة
 print_board :-
     nl,
@@ -128,8 +129,9 @@ print_board :- nl.
 
 
 % ايجاد الخلايا المجاورة لخلية من نفس اللون
-adjacent_cells_to_cell_of_color(Row, Column, Color, AdjacentCells) :-
+adjacent_cells_to_cell_of_color(Row, Column, AdjacentCells) :-
     grid_size(Size),
+    get_cell_color(Row, Column, Color),
     findall(
         [R, C],
         (
