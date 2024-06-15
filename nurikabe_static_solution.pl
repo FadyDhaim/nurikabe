@@ -30,9 +30,7 @@ fxd_cell(9, 6, 6).
 fxd_cell(9, 8, 4).
 
 solve_cell(1, 1, green).
-% solve_cell(1, 2, green).
 solve_cell(1, 3, blue).
-% solve_cell(1, 4, green).
 solve_cell(1, 5, blue).
 solve_cell(1, 6, blue).
 solve_cell(1, 7, blue).
@@ -59,11 +57,8 @@ solve_cell(3, 7, blue).
 solve_cell(3, 8, blue).
 solve_cell(3, 9, blue).
 
-% solve_cell(4, 1, green).
 solve_cell(4, 2, blue).
-% solve_cell(4, 3, green).
 solve_cell(4, 4, blue).
-% solve_cell(4, 5, green).
 solve_cell(4, 6, green).
 solve_cell(4, 7, green).
 solve_cell(4, 8, green).
@@ -83,12 +78,8 @@ solve_cell(6, 1, blue).
 solve_cell(6, 2, green).
 solve_cell(6, 3, green).
 solve_cell(6, 4, blue).
-% solve_cell(6, 5, green).
 solve_cell(6, 6, blue).
-% solve_cell(6, 7, green).
 solve_cell(6, 8, blue).
-% solve_cell(6, 9, green).
-
 solve_cell(7, 1, blue).
 solve_cell(7, 2, blue).
 solve_cell(7, 3, blue).
@@ -114,31 +105,28 @@ solve_cell(9, 2, blue).
 solve_cell(9, 3, blue).
 solve_cell(9, 4, green).
 solve_cell(9, 5, green).
-% solve_cell(9, 6, green).
 solve_cell(9, 7, blue).
-% solve_cell(9, 8, green).
 solve_cell(9, 9, green).
 
 green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
 blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
-
-
+is_green(Color) :- Color == green.
+is_blue(Color) :- Color == blue.
 % طباعة الرقعة
-print_board(Size) :-
+
+print_board :-
     nl,
-    between(1, Size, Row),
-    between(1, Size, Col),
-    (fxd_cell(Row, Col, Num) ->
-        write(Num)
-    ; solve_cell(Row, Col, Color) ->
+    row(R), column(C),
+    (fxd_cell(R, C, Number) ->
+        write(Number)
+    ; solve_cell(R, C, Color) ->
         (Color == green -> write('G') ; write('B'))
     ; write('_')),
     write(' '),
-    (Col =:= Size -> nl ; true),
+    grid_size(Size),
+    (C =:= Size -> nl ; true),
     fail.
-print_board(_) :- nl.
-
-
+print_board :- nl.
 
 
 
