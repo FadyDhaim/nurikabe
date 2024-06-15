@@ -31,8 +31,8 @@ list_pop([H|T], [H|R]):- list_pop(T, R).
 
 % add Operations
 % unshift = enqueue = add first
-list_unshift_element(Element, [], [Element]).
-list_unshift_element(Element, List, [Element|List]).
+list_add_first(Element, [], [Element]).
+list_add_first(Element, List, [Element|List]).
 
 % add last (as of stack)
 list_push_element(Element, [], [Element]).
@@ -44,5 +44,5 @@ list_push_element(Element, [H|T], [H|R]) :- list_push_element(Element, T, R).
 % L = [] => R = [3, 2, 1]
 
 list_reverse([], R, R).
-list_reverse([H|T],RTemp, R):- list_unshift_element(H, RTemp, NewRTemp), list_reverse(T, NewRTemp, R).
+list_reverse([H|T],RTemp, R):- list_add_first(H, RTemp, NewRTemp), list_reverse(T, NewRTemp, R).
 list_reverse(List, R) :- list_reverse(List, [], R).
