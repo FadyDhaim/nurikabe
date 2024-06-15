@@ -99,7 +99,8 @@ solve_cell(9, 7, blue).
 % solve_cell(9, 8, green).
 solve_cell(9, 9, green).
 
-
+green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
+blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
 % طباعة الرقعة
 print_board(Size) :-
     nl,
@@ -115,11 +116,26 @@ print_board(Size) :-
     fail.
 print_board(_) :- nl.
 
-:- use_module(nurikabe_validator).
+
+
+
+
+
+
+
+
+
+
+
+
+% تحقق من صحة الحل
+validate :- one_sea, no_2x2_blocks, island_number_equals_island_size, one_fixed_cell_in_island.
+
+
 
 
 print_and_validate :- print_board(9), (validate ->
         writeln('Valid solution');
         writeln('Invalid solution')).
-    
+
 :- print_and_validate.
