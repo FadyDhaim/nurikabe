@@ -1,4 +1,3 @@
-% Fixed cells
 fxd_cell(1, 2, 3).
 fxd_cell(1, 4, 6).
 fxd_cell(4, 1, 2).
@@ -10,7 +9,6 @@ fxd_cell(6, 9, 2).
 fxd_cell(9, 6, 6).
 fxd_cell(9, 8, 4).
 
-% Solution cells
 solve_cell(1, 1, blue).
 solve_cell(1, 2, green).
 solve_cell(1, 3, green).
@@ -101,16 +99,18 @@ solve_cell(9, 7, green).
 solve_cell(9, 8, green).
 solve_cell(9, 9, blue).
 
-% Print the board
+% طباعة الرقعة
 print_board(Size) :-
+    nl,
     between(1, Size, Row),
     between(1, Size, Col),
     (fxd_cell(Row, Col, Num) ->
         write(Num)
     ; solve_cell(Row, Col, Color) ->
         (Color == green -> write('G') ; write('B'))
-    ; write('.')),
-    (Col == Size -> nl ; true),
+    ; write('_')),
+    write(' '),
+    (Col =:= Size -> nl ; true),
     fail.
 print_board(_) :- nl.
 
@@ -118,4 +118,7 @@ print_board(_) :- nl.
 :- use_module(nurikabe_validator).
 
 % Validate the solution
-:- print_board(9), validate.
+:- print_board(9),
+(validate ->
+        writeln('Valid solution');
+        writeln('Invalid solution')).

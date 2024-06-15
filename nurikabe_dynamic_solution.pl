@@ -19,6 +19,7 @@ initialize_game :-
 
 % طباعة الرقعة
 print_board(Size) :-
+    nl,
     between(1, Size, Row),
     between(1, Size, Col),
     (fxd_cell(Row, Col, Num) ->
@@ -34,7 +35,7 @@ print_board(_) :- nl.
 
 
 % Example of a partial solution
-solve_partially :-
+attempt_solve :-
     assertz(solve_cell(1, 1, blue)),
     assertz(solve_cell(1, 3, green)),
     assertz(solve_cell(1, 4, green)),
@@ -48,10 +49,11 @@ solve_partially :-
     assertz(solve_cell(1, 5, blue)),
     print_board(9).
 
-% Example strategy for solving a part of the board
+
+
 solve :-
-    initialize_game,
-    solve_partially,
+    attempt_solve,
+    print_board(9),
     (validate ->
         writeln('Valid solution');
         writeln('Invalid solution')).
@@ -60,4 +62,5 @@ solve :-
 :- use_module(nurikabe_validator).
 
 % نقطة البداية
+:- initialize_game.
 :- solve.
