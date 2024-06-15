@@ -147,41 +147,44 @@ adjacent_cells_to_cell_of_color(Row, Column, Color, AdjacentCells) :-
 
 
 % شروط التحقق الاربعة
-one_blue_region :-
-    findall([Row, Column], is_blue_cell(Row, Column), BlueCells),
-    (BlueCells = [] -> true;
-    BlueCells = [[StartRow, StartColumn] | _],
-    connected_cells(StartRow, StartColumn, ConnectedBlueCells),
-    length(BlueCells, TotalBlueCells),
-    length(ConnectedBlueCells, TotalBlueCells)).
+% one_blue_region :-
+%     findall([Row, Column], is_blue_cell(Row, Column), BlueCells),
+%     (BlueCells = [] -> true;
+%     BlueCells = [[StartRow, StartColumn] | _],
+%     connected_cells(StartRow, StartColumn, ConnectedBlueCells),
+%     length(BlueCells, TotalBlueCells),
+%     length(ConnectedBlueCells, TotalBlueCells)).
 
-no_2x2_blue_blocks :-
-    \+ (between(1, 8, Row),
-        between(1, 8, Column),
-        is_blue_cell(Row, Column),
-        NextRow is Row + 1,
-        is_blue_cell(NextRow, Column),
-        NextColumn is Column + 1,
-        is_blue_cell(Row, NextColumn),
-        is_blue_cell(NextRow, NextColumn)).
+% no_2x2_blue_blocks :-
+%     \+ (between(1, 8, Row),
+%         between(1, 8, Column),
+%         is_blue_cell(Row, Column),
+%         NextRow is Row + 1,
+%         is_blue_cell(NextRow, Column),
+%         NextColumn is Column + 1,
+%         is_blue_cell(Row, NextColumn),
+%         is_blue_cell(NextRow, NextColumn)).
 
-green_region_number_equals_size :-
-    findall([Row, Column, Size], fxd_cell(Row, Column, Size), FixedCells),
-    forall(member([Row, Column, Size], FixedCells),
-           (connected_cells(Row, Column, ConnectedGreenCells),
-            length(ConnectedGreenCells, Size))).
+% green_region_number_equals_size :-
+%     findall([Row, Column, Size], fxd_cell(Row, Column, Size), FixedCells),
+%     forall(member([Row, Column, Size], FixedCells),
+%            (connected_cells(Row, Column, ConnectedGreenCells),
+%             length(ConnectedGreenCells, Size))).
 
-one_fixed_cell_in_green_region :-
-    findall([Row, Column], fxd_cell(Row, Column, _), FixedCells),
-    forall(member([Row, Column], FixedCells),
-           (connected_cells(Row, Column, ConnectedGreenCells),
-            findall([FR, FC], (member([FR, FC], ConnectedGreenCells), fxd_cell(FR, FC, _)), FixedCellsInGreen),
-            length(FixedCellsInGreen, 1))).
+% one_fixed_cell_in_green_region :-
+%     findall([Row, Column], fxd_cell(Row, Column, _), FixedCells),
+%     forall(member([Row, Column], FixedCells),
+%            (connected_cells(Row, Column, ConnectedGreenCells),
+%             findall([FR, FC], (member([FR, FC], ConnectedGreenCells), fxd_cell(FR, FC, _)), FixedCellsInGreen),
+%             length(FixedCellsInGreen, 1))).
 
 
-validate :- one_blue_region, no_2x2_blue_blocks, green_region_number_equals_size, one_fixed_cell_in_green_region.
+% validate :- one_blue_region, no_2x2_blue_blocks, green_region_number_equals_size, one_fixed_cell_in_green_region.
 
-print_and_validate :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
-% Start printing and validating
-:- print_and_validate.
+% print_and_validate :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+
+:- use_module(list_utility).
+
+start :- print_board. 
+:- initialization(start).
