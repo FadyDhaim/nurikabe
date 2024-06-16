@@ -2,7 +2,7 @@
 
 
 
-is_list_empty(List) :- list_length(List, N), N =:= 0.
+is_list_empty([]).
 list_contains(_, []):- false.
 list_contains(X, [H|T]):- X =:= H ; list_contains(X, T).
 

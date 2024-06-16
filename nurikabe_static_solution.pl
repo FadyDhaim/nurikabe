@@ -144,21 +144,20 @@ adjacent_cells_to_cell(Row, Column, AdjacentCells) :-
         AdjacentCells).
 
 
-    
-connected_cells_to_cell(Row, Column, Visited) :-
-    (is_list_empty(Visited) -> Visited = [];
-    \+ list_of_lists_contains_list([Row, Column], Visited)),
+% ايجاد مجموعة الخلايا الموصلة ان كان جزيرة او بحر
+connected_cells_to_cell(Row, Column, Visited, FinalVisited) :-
+    \+ list_of_lists_contains_list([Row, Column], Visited),
     list_push_element([Row, Column], Visited, NewVisited),
-    Visited = NewVisited,
     adjacent_cells_to_cell(Row, Column, AdjacentCells),
-    process_adjacent_cells(AdjacentCells, Visited).
+    process_adjacent_cells(AdjacentCells, NewVisited, FinalVisited).
 
-process_adjacent_cells([], Visited).
-process_adjacent_cells([[AdjacentCellRow,AdjacentCellColumn]|RestOfAdjacentCells], Visited) :-
-    connected_cells_to_cell(AdjacentCellRow, AdjacentCellColumn, Visited),
-    process_adjacent_cells(RestOfAdjacentCells, Visited).
+process_adjacent_cells([], Visited, Visited).
+process_adjacent_cells([[AdjacentCellRow, AdjacentCellColumn] | RestOfAdjacentCells], Visited, FinalVisited) :-
+    connected_cells_to_cell(AdjacentCellRow, AdjacentCellColumn, Visited, UpdatedVisited),
+    process_adjacent_cells(RestOfAdjacentCells, UpdatedVisited, FinalVisited).
+process_adjacent_cells([_ | RestOfAdjacentCells], Visited, FinalVisited) :-
+    process_adjacent_cells(RestOfAdjacentCells, Visited, FinalVisited).
 
-test3([[E1,E2]|R]) :- write(E1), write(E2).
 
 %connected cells to (2,5)
 %adjacent cells to (2,5) = [[2, 4], [2, 6]] -> Connected Cells = [[2, 4], [2, 6]]
@@ -166,8 +165,7 @@ test3([[E1,E2]|R]) :- write(E1), write(E2).
 %adjacent cells 
     
 
-% ايجاد مجموعة الخلايا الموصلة ان كان جزيرة او بحر
-%كود لازم ينكتب
+
 
 
 % شروط التحقق الاربعة
@@ -210,4 +208,5 @@ test3([[E1,E2]|R]) :- write(E1), write(E2).
 
 
 start :- print_board. 
+:- set_prolog_flag(answer_write_options, [max_depth(0)]).
 :- initialization(start).
