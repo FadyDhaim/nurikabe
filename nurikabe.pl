@@ -1,22 +1,6 @@
 :- use_module(list_utility).
-row(1).
-row(2).
-row(3).
-row(4).
-row(5).
-row(6).
-row(7).
-row(8).
-row(9).
-column(1).
-column(2).
-column(3).
-column(4).
-column(5).
-column(6).
-column(7).
-column(8).
-column(9).
+row(1). row(2). row(3). row(4). row(5). row(6). row(7). row(8). row(9).
+column(1). column(2). column(3). column(4). column(5). column(6). column(7). column(8). column(9).
 grid_size(9).
 
 fxd_cell(1, 2, 3).
@@ -43,14 +27,18 @@ set_green_certain_at(R, C):- assertz(solve_cell_certain(R, C, green)).
 unset_blue_at(R, C) :- retract(solve_cell(R, C, blue)).
 unset_green_at(R, C) :- retract(solve_cell(R, C, green)).
 
-store_islands:-
+setup_islands:-
+    retractall(island(_,_)),
+    setup_islands_helper.
+
+setup_islands_helper:-
     fxd_cell(R, C, _),
     connected_cells_to_cell(R, C, [], IslandCells),
     list_length(IslandCells, NumberOfIslandCells),
     assertz(island(IslandCells, NumberOfIslandCells)),
     fail.
 
-store_islands.
+setup_islands_helper.
 
 
 is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
@@ -210,7 +198,9 @@ no_2_by_2_sea :-
     NumberOf2By2Blocks =:= 0.
 
 
-validate :- store_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
+validate :- setup_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
+
+ready_to_validate :- row(R), column(C), (solve_cell(R, C, _); fxd_cell(R, C, _)).
 
 print_and_validate_static :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
@@ -246,22 +236,35 @@ initial_blue_cells_determination :-
 initial_blue_cells_determination.
 
 attempt_grid_solve :-
-    row(R),column(C),attempt_cell_solve(R, C),fail.
-attempt_grid_solve.
+    findall([R, C], (row(R), column(C), \+ solve_cell_certain(R, C, _), \+ fxd_cell(R, C, _)), UnsolvedCells),
+    solve_cells(UnsolvedCells).
+
+solve_cells([]).
+solve_cells([[R, C] | Rest]) :-
+    attempt_cell_solve(R, C),
+    solve_cells(Rest).
 
 attempt_cell_solve(R, C) :-
-    (solve_cell_certain(R, C, _) -> true ;
-    (set_blue_at(R, C),
-    (one_sea, no_2_by_2_sea -> true; (unset_blue_at(R, C), set_green_at(R, C)))
-    )).
+    (attempt_cell_solve_blue(R, C) -> true; unset_blue_at(R, C), (attempt_cell_solve_green(R, C) -> true; unset_green_at(R, C))).
+
+attempt_cell_solve_blue(R, C) :-
+    set_blue_at(R, C), one_sea, no_2_by_2_sea.
+
+attempt_cell_solve_green(R, C) :-
+    set_green_at(R, C), setup_islands, one_fixed_cell_in_island.
 
 dynamic_solve :-
     initial_blue_cells_determination,
+    dynamic_solve_recursive.
+
+dynamic_solve_recursive:-
     attempt_grid_solve,
     print_board,
-    (validate -> writeln('Valid solution'); writeln('Invalid solution')).
-
-dynamic_solve_recursive.
+    (ready_to_validate -> 
+    (validate -> writeln('Valid solution'); writeln('Invalid solution') %dynamic_solve_recursive
+    ); 
+    dynamic_solve_recursive
+    ).
 
 
 initialize_game :- 
@@ -273,6 +276,8 @@ start_static :- initialize_game, static_solve, print_and_validate_static.
 start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
+
+
 :- initialization(start_dynamic).
 
 
