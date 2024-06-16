@@ -33,6 +33,16 @@ fxd_cell(9, 8, 4).
 :- dynamic solve_cell/3.
 :- dynamic island/2. %مصفوفة خلايا الجزيرة وعدد خلايا الجزيرة
 
+store_islands:-
+    findall([FixedCellRow, FixedCellColumn], 
+        (
+            fxd_cell(FixedCellRow, FixedCellColumn, _),
+            connected_cells_to_cell(FixedCellRow, FixedCellColumn, [], IslandCells),
+            list_length(IslandCells, NumberOfIslandCells),
+            assertz(island(IslandCells, NumberOfIslandCells))
+            ),_).
+
+
 is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
 is_blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
 is_cell_of_color(Row, Column, Color) :- (Color == green -> is_green_cell(Row, Column); Color == blue -> is_blue_cell(Row, Column)).
@@ -84,15 +94,6 @@ process_adjacent_cells([[AdjacentCellRow, AdjacentCellColumn] | RestOfAdjacentCe
 %بحال ازا الخلية يلي بالاستدعاء يلي فوق زرناها قبل ف برجع فولس ومنيجي لهون لنكفي عالباقي
 process_adjacent_cells([_ | RestOfAdjacentCells], Visited, FinalVisited) :-
     process_adjacent_cells(RestOfAdjacentCells, Visited, FinalVisited).
-
-
-store_islands:-
-    findall([FixedCellRow, FixedCellColumn], 
-        (
-            fxd_cell(FixedCellRow, FixedCellColumn, _),
-            connected_cells_to_cell(FixedCellRow, FixedCellColumn, [], IslandCells),
-    list_length(IslandCells, NumberOfIslandCells),
-    assertz(island(IslandCells, NumberOfIslandCells))), _).
 
 
 number_of_blue_cells(N) :-
@@ -199,100 +200,145 @@ no_2_by_2_sea :-
     NumberOf2By2Blocks =:= 0.
 
 
-
-
-
-
 validate :- store_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
 
+print_and_validate_static :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
-print_and_validate :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
 
-start_static :- initialize_game, static_solve, print_and_validate. 
-:- set_prolog_flag(answer_write_options, [max_depth(0)]).
-:- initialization(start_static).
+semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn) :-
+    C is FixedCellColumn + 2,
+    fxd_cell(FixedCellRow, C, _).
+
+semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn) :-
+    C is FixedCellColumn - 2,
+    fxd_cell(FixedCellRow, C, _).
+
+semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow + 2,
+    fxd_cell(R, FixedCellColumn, _).
+
+semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow - 2,
+    fxd_cell(R, FixedCellColumn, _).
+
+initial_blue_cells_determination :-
+    row(FixedCellRow),
+    column(FixedCellColumn),
+    fxd_cell(FixedCellRow, FixedCellColumn, _),
+    (
+        (semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn + 1, \+is_blue_cell(R, C), toggle_blue_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn - 1, \+is_blue_cell(R, C), toggle_blue_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn), R is FixedCellRow - 1, C is FixedCellColumn, \+is_blue_cell(R, C), toggle_blue_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn), R is FixedCellRow + 1, C is FixedCellColumn, \+ is_blue_cell(R, C), toggle_blue_at(R, C))
+    ),
+    fail.
+initial_blue_cells_determination.
+% attempt_grid_solve :-
+%     row(R),column(C), attempt_cell_solve
+
+toggle_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
+toggle_green_at(R, C) :- assertz(solve_cell(R, C, green)).
+
+
+
+start_static :- initialize_game, static_solve, print_and_validate_static. 
+start_dynamic :- initialize_game, dynamic_solve.
+
 
 initialize_game :- 
     retractall(solve_cell(_,_,_)),
     retractall(island(_,_)).
-    
-static_solve:-
-assertz(solve_cell(1, 1, green)),
-assertz(solve_cell(1, 3, blue)),
-assertz(solve_cell(1, 5, blue)),
-assertz(solve_cell(1, 6, blue)),
-assertz(solve_cell(1, 7, blue)),
-assertz(solve_cell(1, 8, blue)),
-assertz(solve_cell(1, 9, blue)),
 
-assertz(solve_cell(2, 1, blue)),
-assertz(solve_cell(2, 2, green)),
-assertz(solve_cell(2, 3, blue)),
-assertz(solve_cell(2, 4, green)),
-assertz(solve_cell(2, 5, green)),
-assertz(solve_cell(2, 6, green)),
-assertz(solve_cell(2, 7, green)),
-assertz(solve_cell(2, 8, green)),
-assertz(solve_cell(2, 9, blue)),
 
-assertz(solve_cell(3, 1, blue)),
-assertz(solve_cell(3, 2, blue)),
-assertz(solve_cell(3, 3, blue)),
-assertz(solve_cell(3, 4, blue)),
-assertz(solve_cell(3, 5, blue)),
-assertz(solve_cell(3, 6, blue)),
-assertz(solve_cell(3, 7, blue)),
-assertz(solve_cell(3, 8, blue)),
-assertz(solve_cell(3, 9, blue)),
 
-assertz(solve_cell(4, 2, blue)),
-assertz(solve_cell(4, 4, blue)),
-assertz(solve_cell(4, 6, green)),
-assertz(solve_cell(4, 7, green)),
-assertz(solve_cell(4, 8, green)),
-assertz(solve_cell(4, 9, blue)),
+dynamic_solve :-
+    % attempt_grid_solve,
+    initial_blue_cells_determination,
+    print_board.
+    % (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
-assertz(solve_cell(5, 1, green)),
-assertz(solve_cell(5, 2, blue)),
-assertz(solve_cell(5, 3, green)),
-assertz(solve_cell(5, 4, blue)),
-assertz(solve_cell(5, 5, blue)),
-assertz(solve_cell(5, 6, blue)),
-assertz(solve_cell(5, 7, blue)),
-assertz(solve_cell(5, 8, blue)),
-assertz(solve_cell(5, 9, green)),
+:- set_prolog_flag(answer_write_options, [max_depth(0)]).
+:- initialization(start_dynamic).
 
-assertz(solve_cell(6, 1, blue)),
-assertz(solve_cell(6, 2, green)),
-assertz(solve_cell(6, 3, green)),
-assertz(solve_cell(6, 4, blue)),
-assertz(solve_cell(6, 6, blue)),
-assertz(solve_cell(6, 8, blue)),
-assertz(solve_cell(7, 1, blue)),
-assertz(solve_cell(7, 2, blue)),
-assertz(solve_cell(7, 3, blue)),
-assertz(solve_cell(7, 4, blue)),
-assertz(solve_cell(7, 5, blue)),
-assertz(solve_cell(7, 6, green)),
-assertz(solve_cell(7, 7, green)),
-assertz(solve_cell(7, 8, blue)),
-assertz(solve_cell(7, 9, blue)),
 
-assertz(solve_cell(8, 1, blue)),
-assertz(solve_cell(8, 2, green)),
-assertz(solve_cell(8, 3, green)),
-assertz(solve_cell(8, 4, green)),
-assertz(solve_cell(8, 5, blue)),
-assertz(solve_cell(8, 6, blue)),
-assertz(solve_cell(8, 7, blue)),
-assertz(solve_cell(8, 8, green)),
-assertz(solve_cell(8, 9, green)),
+static_solve :-
+    toggle_green_at(1, 1),
+    toggle_blue_at(1, 3),
+    toggle_blue_at(1, 5),
+    toggle_blue_at(1, 6),
+    toggle_blue_at(1, 7),
+    toggle_blue_at(1, 8),
+    toggle_blue_at(1, 9),
 
-assertz(solve_cell(9, 1, blue)),
-assertz(solve_cell(9, 2, blue)),
-assertz(solve_cell(9, 3, blue)),
-assertz(solve_cell(9, 4, green)),
-assertz(solve_cell(9, 5, green)),
-assertz(solve_cell(9, 7, blue)),
-assertz(solve_cell(9, 9, green)).
+    toggle_blue_at(2, 1),
+    toggle_green_at(2, 2),
+    toggle_blue_at(2, 3),
+    toggle_green_at(2, 4),
+    toggle_green_at(2, 5),
+    toggle_green_at(2, 6),
+    toggle_green_at(2, 7),
+    toggle_green_at(2, 8),
+    toggle_blue_at(2, 9),
+
+    toggle_blue_at(3, 1),
+    toggle_blue_at(3, 2),
+    toggle_blue_at(3, 3),
+    toggle_blue_at(3, 4),
+    toggle_blue_at(3, 5),
+    toggle_blue_at(3, 6),
+    toggle_blue_at(3, 7),
+    toggle_blue_at(3, 8),
+    toggle_blue_at(3, 9),
+
+    toggle_blue_at(4, 2),
+    toggle_blue_at(4, 4),
+    toggle_green_at(4, 6),
+    toggle_green_at(4, 7),
+    toggle_green_at(4, 8),
+    toggle_blue_at(4, 9),
+
+    toggle_green_at(5, 1),
+    toggle_blue_at(5, 2),
+    toggle_green_at(5, 3),
+    toggle_blue_at(5, 4),
+    toggle_blue_at(5, 5),
+    toggle_blue_at(5, 6),
+    toggle_blue_at(5, 7),
+    toggle_blue_at(5, 8),
+    toggle_green_at(5, 9),
+
+    toggle_blue_at(6, 1),
+    toggle_green_at(6, 2),
+    toggle_green_at(6, 3),
+    toggle_blue_at(6, 4),
+    toggle_blue_at(6, 6),
+    toggle_blue_at(6, 8),
+
+    toggle_blue_at(7, 1),
+    toggle_blue_at(7, 2),
+    toggle_blue_at(7, 3),
+    toggle_blue_at(7, 4),
+    toggle_blue_at(7, 5),
+    toggle_green_at(7, 6),
+    toggle_green_at(7, 7),
+    toggle_blue_at(7, 8),
+    toggle_blue_at(7, 9),
+
+    toggle_blue_at(8, 1),
+    toggle_green_at(8, 2),
+    toggle_green_at(8, 3),
+    toggle_green_at(8, 4),
+    toggle_blue_at(8, 5),
+    toggle_blue_at(8, 6),
+    toggle_blue_at(8, 7),
+    toggle_green_at(8, 8),
+    toggle_green_at(8, 9),
+
+    toggle_blue_at(9, 1),
+    toggle_blue_at(9, 2),
+    toggle_blue_at(9, 3),
+    toggle_green_at(9, 4),
+    toggle_green_at(9, 5),
+    toggle_blue_at(9, 7),
+    toggle_green_at(9, 9).

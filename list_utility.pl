@@ -1,4 +1,4 @@
-:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_push_list/3, is_list_empty/1, list_length/2]).
+:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_length/2]).
 
 
 
@@ -40,11 +40,11 @@ list_delete_element(Element, [Head| Tail], [Head| ResultTail]):- list_delete_ele
 
 %remove first
 list_shift([], []).
-list_shift([H|T], T).
+list_shift([_|T], T).
 
 %remove last
-list_pop([H|[]],[]).
-list_pop([H|T], [H|R]):- list_pop(T, R).
+list_pop([_|[]],[]).
+list_pop([_|T], [_|R]):- list_pop(T, R).
 
 % add Operations
 % unshift = enqueue = add first
