@@ -33,6 +33,9 @@ fxd_cell(9, 8, 4).
 :- dynamic solve_cell/3.
 :- dynamic island/2. %مصفوفة خلايا الجزيرة وعدد خلايا الجزيرة
 
+toggle_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
+toggle_green_at(R, C) :- assertz(solve_cell(R, C, green)).
+
 store_islands:-
     fxd_cell(R, C, _),
     connected_cells_to_cell(R, C, [], IslandCells),
@@ -234,16 +237,9 @@ initial_blue_cells_determination :-
     ),
     fail.
 initial_blue_cells_determination.
-% attempt_grid_solve :-
-%     row(R),column(C), attempt_cell_solve
 
-toggle_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
-toggle_green_at(R, C) :- assertz(solve_cell(R, C, green)).
-
-
-
-
-
+attempt_grid_solve :-
+    row(R),column(C), attempt_cell_solve
 
 
 dynamic_solve :-
