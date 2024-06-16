@@ -34,13 +34,13 @@ fxd_cell(9, 8, 4).
 :- dynamic island/2. %مصفوفة خلايا الجزيرة وعدد خلايا الجزيرة
 
 store_islands:-
-    findall([FixedCellRow, FixedCellColumn], 
-        (
-            fxd_cell(FixedCellRow, FixedCellColumn, _),
-            connected_cells_to_cell(FixedCellRow, FixedCellColumn, [], IslandCells),
-            list_length(IslandCells, NumberOfIslandCells),
-            assertz(island(IslandCells, NumberOfIslandCells))
-            ),_).
+    fxd_cell(R, C, _),
+    connected_cells_to_cell(R, C, [], IslandCells),
+    list_length(IslandCells, NumberOfIslandCells),
+    assertz(island(IslandCells, NumberOfIslandCells)),
+    fail.
+
+store_islands.
 
 
 is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
@@ -242,24 +242,25 @@ toggle_green_at(R, C) :- assertz(solve_cell(R, C, green)).
 
 
 
-start_static :- initialize_game, static_solve, print_and_validate_static. 
-start_dynamic :- initialize_game, dynamic_solve.
 
+
+
+
+dynamic_solve :-
+    initial_blue_cells_determination,
+    attempt_grid_solve,
+    print_board.
+% (validate -> writeln('Valid solution'); writeln('Invalid solution')).
 
 initialize_game :- 
     retractall(solve_cell(_,_,_)),
     retractall(island(_,_)).
 
-
-
-dynamic_solve :-
-    % attempt_grid_solve,
-    initial_blue_cells_determination,
-    print_board.
-    % (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+start_static :- initialize_game, static_solve, print_and_validate_static. 
+start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
-:- initialization(start_dynamic).
+:- initialization(start_static).
 
 
 static_solve :-
