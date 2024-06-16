@@ -1,4 +1,4 @@
-:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_push_list/3, is_list_empty/1]).
+:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_push_list/3, is_list_empty/1, list_length/2]).
 
 
 
@@ -8,14 +8,18 @@ list_contains(X, [H|T]):- X =:= H ; list_contains(X, T).
 
 list_equals_list(List1, List2) :- list_length(List1, N1), list_length(List2, N2), N1 =:= N2, list_equals_list_helper(List1, List2).
 list_equals_list_helper([], []) :- true.
-list_equals_list_helper([H1|L1], [H2|L2]):-H1 =:= H2, list_equals_list(L1, L2).
+list_equals_list_helper([H1|T1], [H2|T2]):-H1 =:= H2, list_equals_list_helper(T1, T2).
 
 list_of_lists_contains_list(_, []) :- false.
-list_of_lists_contains_list(List, [H|T]) :- list_equals_list(List, H); list_of_lists_contains_list(List, T).
+% Check if a list of lists contains a specific list
+list_of_lists_contains_list(List, [H|_]) :- 
+    list_equals_list(List, H). % If the head matches, succeed
+list_of_lists_contains_list(List, [_|T]) :- 
+    list_of_lists_contains_list(List, T). % Otherwise, check the tail
 
 
 list_length([],0).
-list_length([_|TAIL],N) :- list_length(TAIL,N1), N is N1 + 1.
+list_length([_|T],N) :- list_length(T,N1), N is N1 + 1.
 
 
 % L1 = [1,2,3]
