@@ -31,10 +31,17 @@ fxd_cell(9, 6, 6).
 fxd_cell(9, 8, 4).
 
 :- dynamic solve_cell/3.
+:- dynamic solve_cell_certain/3.
 :- dynamic island/2. %مصفوفة خلايا الجزيرة وعدد خلايا الجزيرة
 
-toggle_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
-toggle_green_at(R, C) :- assertz(solve_cell(R, C, green)).
+set_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
+set_green_at(R, C) :- assertz(solve_cell(R, C, green)).
+
+set_blue_certain_at(R, C) :- assertz(solve_cell_certain(R, C, blue)).
+set_green_certain_at(R, C):- assertz(solve_cell_certain(R, C, green)).
+
+unset_blue_at(R, C) :- retract(solve_cell(R, C, blue)).
+unset_green_at(R, C) :- retract(solve_cell(R, C, green)).
 
 store_islands:-
     fxd_cell(R, C, _),
@@ -230,112 +237,122 @@ initial_blue_cells_determination :-
     column(FixedCellColumn),
     fxd_cell(FixedCellRow, FixedCellColumn, _),
     (
-        (semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn + 1, \+is_blue_cell(R, C), toggle_blue_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn - 1, \+is_blue_cell(R, C), toggle_blue_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn), R is FixedCellRow - 1, C is FixedCellColumn, \+is_blue_cell(R, C), toggle_blue_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn), R is FixedCellRow + 1, C is FixedCellColumn, \+ is_blue_cell(R, C), toggle_blue_at(R, C))
+        (semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn + 1, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn - 1, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn), R is FixedCellRow - 1, C is FixedCellColumn, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn), R is FixedCellRow + 1, C is FixedCellColumn, \+ is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C))
     ),
     fail.
 initial_blue_cells_determination.
 
 attempt_grid_solve :-
-    row(R),column(C), attempt_cell_solve
+    row(R),column(C),attempt_cell_solve(R, C),fail.
+attempt_grid_solve.
 
+attempt_cell_solve(R, C) :-
+    (solve_cell_certain(R, C, _) -> true ;
+    (set_blue_at(R, C),
+    (one_sea, no_2_by_2_sea -> true; (unset_blue_at(R, C), set_green_at(R, C)))
+    )).
 
 dynamic_solve :-
     initial_blue_cells_determination,
     attempt_grid_solve,
-    print_board.
-% (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+    print_board,
+    (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+
+dynamic_solve_recursive.
+
 
 initialize_game :- 
     retractall(solve_cell(_,_,_)),
+    retractall(solve_cell_certain(_,_,_)),
     retractall(island(_,_)).
 
 start_static :- initialize_game, static_solve, print_and_validate_static. 
 start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
-:- initialization(start_static).
+:- initialization(start_dynamic).
 
 
 static_solve :-
-    toggle_green_at(1, 1),
-    toggle_blue_at(1, 3),
-    toggle_blue_at(1, 5),
-    toggle_blue_at(1, 6),
-    toggle_blue_at(1, 7),
-    toggle_blue_at(1, 8),
-    toggle_blue_at(1, 9),
+    set_green_at(1, 1),
+    set_blue_at(1, 3),
+    set_blue_at(1, 5),
+    set_blue_at(1, 6),
+    set_blue_at(1, 7),
+    set_blue_at(1, 8),
+    set_blue_at(1, 9),
 
-    toggle_blue_at(2, 1),
-    toggle_green_at(2, 2),
-    toggle_blue_at(2, 3),
-    toggle_green_at(2, 4),
-    toggle_green_at(2, 5),
-    toggle_green_at(2, 6),
-    toggle_green_at(2, 7),
-    toggle_green_at(2, 8),
-    toggle_blue_at(2, 9),
+    set_blue_at(2, 1),
+    set_green_at(2, 2),
+    set_blue_at(2, 3),
+    set_green_at(2, 4),
+    set_green_at(2, 5),
+    set_green_at(2, 6),
+    set_green_at(2, 7),
+    set_green_at(2, 8),
+    set_blue_at(2, 9),
 
-    toggle_blue_at(3, 1),
-    toggle_blue_at(3, 2),
-    toggle_blue_at(3, 3),
-    toggle_blue_at(3, 4),
-    toggle_blue_at(3, 5),
-    toggle_blue_at(3, 6),
-    toggle_blue_at(3, 7),
-    toggle_blue_at(3, 8),
-    toggle_blue_at(3, 9),
+    set_blue_at(3, 1),
+    set_blue_at(3, 2),
+    set_blue_at(3, 3),
+    set_blue_at(3, 4),
+    set_blue_at(3, 5),
+    set_blue_at(3, 6),
+    set_blue_at(3, 7),
+    set_blue_at(3, 8),
+    set_blue_at(3, 9),
 
-    toggle_blue_at(4, 2),
-    toggle_blue_at(4, 4),
-    toggle_green_at(4, 6),
-    toggle_green_at(4, 7),
-    toggle_green_at(4, 8),
-    toggle_blue_at(4, 9),
+    set_blue_at(4, 2),
+    set_blue_at(4, 4),
+    set_green_at(4, 6),
+    set_green_at(4, 7),
+    set_green_at(4, 8),
+    set_blue_at(4, 9),
 
-    toggle_green_at(5, 1),
-    toggle_blue_at(5, 2),
-    toggle_green_at(5, 3),
-    toggle_blue_at(5, 4),
-    toggle_blue_at(5, 5),
-    toggle_blue_at(5, 6),
-    toggle_blue_at(5, 7),
-    toggle_blue_at(5, 8),
-    toggle_green_at(5, 9),
+    set_green_at(5, 1),
+    set_blue_at(5, 2),
+    set_green_at(5, 3),
+    set_blue_at(5, 4),
+    set_blue_at(5, 5),
+    set_blue_at(5, 6),
+    set_blue_at(5, 7),
+    set_blue_at(5, 8),
+    set_green_at(5, 9),
 
-    toggle_blue_at(6, 1),
-    toggle_green_at(6, 2),
-    toggle_green_at(6, 3),
-    toggle_blue_at(6, 4),
-    toggle_blue_at(6, 6),
-    toggle_blue_at(6, 8),
+    set_blue_at(6, 1),
+    set_green_at(6, 2),
+    set_green_at(6, 3),
+    set_blue_at(6, 4),
+    set_blue_at(6, 6),
+    set_blue_at(6, 8),
 
-    toggle_blue_at(7, 1),
-    toggle_blue_at(7, 2),
-    toggle_blue_at(7, 3),
-    toggle_blue_at(7, 4),
-    toggle_blue_at(7, 5),
-    toggle_green_at(7, 6),
-    toggle_green_at(7, 7),
-    toggle_blue_at(7, 8),
-    toggle_blue_at(7, 9),
+    set_blue_at(7, 1),
+    set_blue_at(7, 2),
+    set_blue_at(7, 3),
+    set_blue_at(7, 4),
+    set_blue_at(7, 5),
+    set_green_at(7, 6),
+    set_green_at(7, 7),
+    set_blue_at(7, 8),
+    set_blue_at(7, 9),
 
-    toggle_blue_at(8, 1),
-    toggle_green_at(8, 2),
-    toggle_green_at(8, 3),
-    toggle_green_at(8, 4),
-    toggle_blue_at(8, 5),
-    toggle_blue_at(8, 6),
-    toggle_blue_at(8, 7),
-    toggle_green_at(8, 8),
-    toggle_green_at(8, 9),
+    set_blue_at(8, 1),
+    set_green_at(8, 2),
+    set_green_at(8, 3),
+    set_green_at(8, 4),
+    set_blue_at(8, 5),
+    set_blue_at(8, 6),
+    set_blue_at(8, 7),
+    set_green_at(8, 8),
+    set_green_at(8, 9),
 
-    toggle_blue_at(9, 1),
-    toggle_blue_at(9, 2),
-    toggle_blue_at(9, 3),
-    toggle_green_at(9, 4),
-    toggle_green_at(9, 5),
-    toggle_blue_at(9, 7),
-    toggle_green_at(9, 9).
+    set_blue_at(9, 1),
+    set_blue_at(9, 2),
+    set_blue_at(9, 3),
+    set_green_at(9, 4),
+    set_green_at(9, 5),
+    set_blue_at(9, 7),
+    set_green_at(9, 9).
