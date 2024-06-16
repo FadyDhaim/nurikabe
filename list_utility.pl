@@ -1,6 +1,8 @@
-:- module(list_utility, [list_of_lists_contains_list/2]).
+:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_push_list/3, is_list_empty/1]).
 
 
+
+is_list_empty(List) :- list_length(List, N), N =:= 0.
 list_contains(_, []):- false.
 list_contains(X, [H|T]):- X =:= H ; list_contains(X, T).
 
@@ -49,6 +51,13 @@ list_add_first(Element, List, [Element|List]).
 list_push_element(Element, [], [Element]).
 list_push_element(Element, [H|T], [H|R]) :- list_push_element(Element, T, R).
 
+list_push_list([], R, R).
+list_push_list(R, [], R).
+list_push_list(
+    [ListToPush|RestOfListsToPush],
+    [OriginalListToPush| RestOfOriginalListsToPush],
+    [ListToPush|[OriginalListToPush|RT]]
+    ) :- list_push_list(RestOfListsToPush, RestOfOriginalListsToPush, RT).
 % L = [1,2,3], [] =>  R = [1]
 % L = [2, 3] , [] => R = [2, 1]
 % L = [3], [2, 1] => R = [3, 2, 1]
