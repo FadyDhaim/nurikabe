@@ -3,16 +3,8 @@ row(1). row(2). row(3). row(4). row(5). row(6). row(7). row(8). row(9).
 column(1). column(2). column(3). column(4). column(5). column(6). column(7). column(8). column(9).
 grid_size(9).
 
-fxd_cell(1, 2, 3).
-fxd_cell(1, 4, 6).
-fxd_cell(4, 1, 2).
-fxd_cell(4, 3, 4).
-fxd_cell(4, 5, 4).
-fxd_cell(6, 5, 1).
-fxd_cell(6, 7, 3).
-fxd_cell(6, 9, 2).
-fxd_cell(9, 6, 6).
-fxd_cell(9, 8, 4).
+fxd_cell(1, 2, 3). fxd_cell(1, 4, 6). fxd_cell(4, 1, 2). fxd_cell(4, 3, 4). fxd_cell(4, 5, 4). 
+fxd_cell(6, 5, 1). fxd_cell(6, 7, 3). fxd_cell(6, 9, 2). fxd_cell(9, 6, 6). fxd_cell(9, 8, 4).
 
 :- dynamic solve_cell/3.
 :- dynamic solve_cell_certain/3.
@@ -277,8 +269,7 @@ start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
 
-
-:- initialization(start_dynamic).
+:- initialization(start_static).
 
 
 static_solve :-
