@@ -102,7 +102,8 @@ number_of_blue_cells(N) :-
         list_length(BlueCells, N).
 
 find_fixed_cell_in_island([[IslandCellRow, IslandCellColumn]|RestOfIslandCells], FixedCell):-
-    (fxd_cell(IslandCellRow, IslandCellColumn, _), FixedCell = [IslandCellRow, IslandCellColumn], !); find_fixed_cell_in_island(RestOfIslandCells, FixedCell).
+    (fxd_cell(IslandCellRow, IslandCellColumn, _), FixedCell = [IslandCellRow, IslandCellColumn], !); 
+    find_fixed_cell_in_island(RestOfIslandCells, FixedCell).
 
 %شروط التحقق الاربعة
 one_sea :-
@@ -135,57 +136,67 @@ island_number_equals_size :-
     
 
 
-
-no_2_by_2_sea_upper_left(BlueCellRow, BlueCellColumn) :-
+sea_upper_left_2_by_2(BlueCellRow, BlueCellColumn) :-
     findall([R, C],
         (
-        (R is BlueCellRow, C is BlueCellColumn - 1, C > 0, is_blue_cell(R, C));
-        (R is BlueCellRow - 1, C is BlueCellColumn - 1, R > 0, C > 0, is_blue_cell(R, C));
-        (R is BlueCellRow - 1, C is BlueCellColumn, R > 0, is_blue_cell(R, C))
+            (R is BlueCellRow, C is BlueCellColumn - 1, C > 0, is_blue_cell(R, C));
+            (R is BlueCellRow - 1, C is BlueCellColumn - 1, R > 0, C > 0, is_blue_cell(R, C));
+            (R is BlueCellRow - 1, C is BlueCellColumn, R > 0, is_blue_cell(R, C))
         ),
-        UpperLeftSeaCells), list_length(UpperLeftSeaCells, NumberOfUpperLeftSeaCells), NumberOfUpperLeftSeaCells =\= 3.
-no_2_by_2_sea_upper_right(BlueCellRow, BlueCellColumn) :-
-grid_size(Size),
-    findall([R, C],
-        (
-        (R is BlueCellRow, C is BlueCellColumn + 1, C =< Size, is_blue_cell(R, C));
-        (R is BlueCellRow - 1, C is BlueCellColumn + 1, R > 0, C =< Size, is_blue_cell(R, C));
-        (R is BlueCellRow - 1, C is BlueCellColumn, R > 0, is_blue_cell(R, C))
-        ),
-        UpperRightSeaCells), list_length(UpperRightSeaCells, NumberOfUpperRightSeaCells), NumberOfUpperRightSeaCells =\= 3.
+        UpperLeftSeaCells),
+    list_length(UpperLeftSeaCells, NumberOfUpperLeftSeaCells),
+    NumberOfUpperLeftSeaCells =:= 3.
 
-no_2_by_2_sea_lower_left(BlueCellRow, BlueCellColumn) :-
+sea_upper_right_2_by_2(BlueCellRow, BlueCellColumn) :-
     grid_size(Size),
     findall([R, C],
         (
-        (R is BlueCellRow, C is BlueCellColumn - 1, C > 0 , is_blue_cell(R, C));
-        (R is BlueCellRow + 1, C is BlueCellColumn - 1,  R =< Size, C > 0, is_blue_cell(R, C));
-        (R is BlueCellRow + 1, C is BlueCellColumn, R =< Size, is_blue_cell(R, C))
+            (R is BlueCellRow, C is BlueCellColumn + 1, C =< Size, is_blue_cell(R, C));
+            (R is BlueCellRow - 1, C is BlueCellColumn + 1, R > 0, C =< Size, is_blue_cell(R, C));
+            (R is BlueCellRow - 1, C is BlueCellColumn, R > 0, is_blue_cell(R, C))
         ),
-        LowerLeftSeaCells), list_length(LowerLeftSeaCells, NumberOfLowerLeftSeaCells), NumberOfLowerLeftSeaCells =\= 3.
+        UpperRightSeaCells),
+    list_length(UpperRightSeaCells, NumberOfUpperRightSeaCells),
+    NumberOfUpperRightSeaCells =:= 3.
 
-no_2_by_2_sea_lower_right(BlueCellRow, BlueCellColumn) :-
+sea_lower_left_2_by_2(BlueCellRow, BlueCellColumn) :-
     grid_size(Size),
     findall([R, C],
         (
-        (R is BlueCellRow, C is BlueCellColumn + 1, C =< Size , is_blue_cell(R, C));
-        (R is BlueCellRow + 1, C is BlueCellColumn + 1,  R =< Size, C =< Size, is_blue_cell(R, C));
-        (R is BlueCellRow + 1, C is BlueCellColumn, R =< Size, is_blue_cell(R, C))
+            (R is BlueCellRow, C is BlueCellColumn - 1, C > 0, is_blue_cell(R, C));
+            (R is BlueCellRow + 1, C is BlueCellColumn - 1, R =< Size, C > 0, is_blue_cell(R, C));
+            (R is BlueCellRow + 1, C is BlueCellColumn, R =< Size, is_blue_cell(R, C))
         ),
-        LowerRightSeaCells), list_length(LowerRightSeaCells, NumberOfLowerRightSeaCells), NumberOfLowerRightSeaCells =\= 3.
+        LowerLeftSeaCells),
+    list_length(LowerLeftSeaCells, NumberOfLowerLeftSeaCells),
+    NumberOfLowerLeftSeaCells =:= 3.
+
+sea_lower_right_2_by_2(BlueCellRow, BlueCellColumn) :-
+    grid_size(Size),
+    findall([R, C],
+        (
+            (R is BlueCellRow, C is BlueCellColumn + 1, C =< Size, is_blue_cell(R, C));
+            (R is BlueCellRow + 1, C is BlueCellColumn + 1, R =< Size, C =< Size, is_blue_cell(R, C));
+            (R is BlueCellRow + 1, C is BlueCellColumn, R =< Size, is_blue_cell(R, C))
+        ),
+        LowerRightSeaCells),
+    list_length(LowerRightSeaCells, NumberOfLowerRightSeaCells),
+    NumberOfLowerRightSeaCells =:= 3.
 
 no_2_by_2_sea :-
     findall([R, C],
         (
-    is_blue_cell(R, C),
-    no_2_by_2_sea_upper_left(R, C),
-    no_2_by_2_sea_upper_right(R, C),
-    no_2_by_2_sea_lower_left(R, C),
-    no_2_by_2_sea_lower_right(R, C)
-    ),Blocks2By2), list_length(Blocks2By2, NumberOf2By2Blocks), NumberOf2By2Blocks =:= 0.
-
-
-
+            is_blue_cell(R, C),
+            (
+        sea_upper_left_2_by_2(R, C);
+        sea_upper_right_2_by_2(R, C);
+        sea_lower_left_2_by_2(R, C);
+        sea_lower_right_2_by_2(R, C)
+        )
+        ),
+        Blocks2By2),
+    list_length(Blocks2By2, NumberOf2By2Blocks),
+    NumberOf2By2Blocks =:= 0.
 
 
 
