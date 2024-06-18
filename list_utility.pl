@@ -1,4 +1,4 @@
-:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_length/2]).
+:- module(list_utility, [list_of_lists_contains_list/2, list_push_element/3, list_length/2, list_add_first/3]).
 
 
 
