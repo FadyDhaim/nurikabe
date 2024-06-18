@@ -10,14 +10,32 @@ fxd_cell(6, 5, 1). fxd_cell(6, 7, 3). fxd_cell(6, 9, 2). fxd_cell(9, 6, 6). fxd_
 :- dynamic solve_cell_certain/3.
 :- dynamic island/2. %مصفوفة خلايا الجزيرة وعدد خلايا الجزيرة
 
-set_blue_at(R, C) :- assertz(solve_cell(R, C, blue)).
-set_green_at(R, C) :- assertz(solve_cell(R, C, green)).
+set_blue_at(R, C) :- 
+    unset_green_at(R, C),
+     ( \+ solve_cell(R, C, blue) -> assertz(solve_cell(R, C, blue)) ; true ).
 
-set_blue_certain_at(R, C) :- assertz(solve_cell_certain(R, C, blue)).
-set_green_certain_at(R, C):- assertz(solve_cell_certain(R, C, green)).
+set_green_at(R, C) :- 
+    unset_blue_at(R, C),
+     ( \+ solve_cell(R, C, green) -> assertz(solve_cell(R, C, green)) ; true ).
 
-unset_blue_at(R, C) :- retract(solve_cell(R, C, blue)).
-unset_green_at(R, C) :- retract(solve_cell(R, C, green)).
+set_blue_certain_at(R, C) :- set_blue_at(R, C), 
+    (\+ solve_cell_certain(R, C, blue) -> assertz(solve_cell_certain(R, C, blue)) ; true).
+set_green_certain_at(R, C) :- set_green_at(R, C), 
+    (\+ solve_cell_certain(R, C, green) -> assertz(solve_cell_certain(R, C, green)) ; true).
+
+
+unset_blue_at(R, C) :- (solve_cell(R, C, blue) -> retract(solve_cell(R, C, blue)); true).
+unset_green_at(R, C) :- (solve_cell(R, C, green) -> retract(solve_cell(R, C, green)); true).
+
+set_cells_with_certain_color([], _).
+set_cells_with_certain_color([[R, C]|RestOfCells], Color) :-
+        (Color == blue -> set_blue_certain_at(R, C); set_green_certain_at(R, C)),
+        set_cells_with_certain_color(RestOfCells, Color).
+
+set_cells_with_color([], _).
+set_cells_with_color([[R, C]|RestOfCells], Color) :-
+        (Color == blue -> set_blue_at(R, C); set_green_at(R, C)),
+        set_cells_with_color(RestOfCells, Color).
 
 setup_islands:-
     retractall(island(_,_)),
@@ -33,10 +51,10 @@ setup_islands_helper:-
 setup_islands_helper.
 
 
-is_green_cell(Row, Column) :- fxd_cell(Row, Column, _); solve_cell(Row, Column, green).
-is_blue_cell(Row, Column) :- solve_cell(Row, Column, blue).
-is_cell_of_color(Row, Column, Color) :- (Color == green -> is_green_cell(Row, Column); Color == blue -> is_blue_cell(Row, Column)).
-get_cell_color(Row, Column, Color) :- (is_green_cell(Row, Column), Color = green; is_blue_cell(Row, Column), Color = blue).
+is_green_cell(R, C) :- fxd_cell(R, C, _); solve_cell(R, C, green).
+is_blue_cell(R, C) :- solve_cell(R, C, blue).
+is_cell_of_color(R, C, Color) :- (Color == green -> is_green_cell(R, C); Color == blue -> is_blue_cell(R, C)).
+get_cell_color(R, C, Color) :- (is_green_cell(R, C), Color = green; is_blue_cell(R, C), Color = blue).
 
 % طباعة الرقعة
 print_board :-
@@ -54,8 +72,16 @@ print_board :-
 print_board :- nl.
 
 
+adjacent_cells_to_cell(R, C, AdjacentCells) :-
+    grid_size(Size),
+    findall([R, C], (
+            (R is Row - 1, C is Column, R > 0);
+            (R is Row + 1, C is Column, R =< Size);
+            (R is Row, C is Column - 1, C > 0); 
+            (R is Row, C is Column + 1, C =< Size)
+        ), AdjacentCells).
 % ايجاد الخلايا المجاورة لخلية من نفس اللون
-adjacent_cells_to_cell(Row, Column, AdjacentCells) :-
+adjacent_cells_to_cell_of_the_same_color(Row, Column, AdjacentCells) :-
     grid_size(Size),
     get_cell_color(Row, Column, Color),
     findall(
@@ -73,7 +99,7 @@ adjacent_cells_to_cell(Row, Column, AdjacentCells) :-
 connected_cells_to_cell(Row, Column, Visited, FinalVisited) :-
     \+ list_of_lists_contains_list([Row, Column], Visited),
     list_push_element([Row, Column], Visited, NewVisited),
-    adjacent_cells_to_cell(Row, Column, AdjacentCells),
+    adjacent_cells_to_cell_of_the_same_color(Row, Column, AdjacentCells),
     process_adjacent_cells(AdjacentCells, NewVisited, FinalVisited).
 
 process_adjacent_cells([], Visited, Visited).
@@ -214,21 +240,76 @@ semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn) :-
     R is FixedCellRow - 2,
     fxd_cell(R, FixedCellColumn, _).
 
-initial_blue_cells_determination :-
-    row(FixedCellRow),
-    column(FixedCellColumn),
+
+surround_1_celled_islands_with_sea :-
+        fxd_cell(R, C, N),
+        N =:= 1,
+        adjacent_cells_to_cell(R, C, AdjacentCells),
+        set_cells_with_certain_color(AdjacentCells, blue),
+        fail.
+
+surround_1_celled_islands_with_sea.
+
+fill_one_celled_gaps_with_sea:-
     fxd_cell(FixedCellRow, FixedCellColumn, _),
     (
-        (semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn + 1, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn - 1, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn), R is FixedCellRow - 1, C is FixedCellColumn, \+is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C));
-        (semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn), R is FixedCellRow + 1, C is FixedCellColumn, \+ is_blue_cell(R, C), set_blue_at(R, C), set_blue_certain_at(R, C))
+        (semi_adjacent_fixed_cell_to_the_right(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn + 1,  set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn), R is FixedCellRow, C is FixedCellColumn - 1,  set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn), R is FixedCellRow - 1, C is FixedCellColumn,  set_blue_certain_at(R, C));
+        (semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn), R is FixedCellRow + 1, C is FixedCellColumn, set_blue_certain_at(R, C))
     ),
     fail.
-initial_blue_cells_determination.
+fill_one_celled_gaps_with_sea.
+
+diagonally_adjacent_fixed_cell_to_the_upper_left(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow - 1
+    C is FixedCellColumn - 1,
+    fxd_cell(R, C, _).
+
+semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn) :-
+    C is FixedCellColumn - 2,
+    fxd_cell(FixedCellRow, C, _).
+
+semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow + 2,
+    fxd_cell(R, FixedCellColumn, _).
+
+semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow - 2,
+    fxd_cell(R, FixedCellColumn, _).
+
+fill_diagonally_adjacent_fixed_cells_gaps_with_sea:-
+        fxd_cell(R, C, _),
+        (
+        )
+        adjacent_cells_to_cell(R, C, AdjacentCells),
+        set_cells_with_certain_color(AdjacentCells, blue),
+        fail.
+
+fill_diagonally_adjacent_fixed_cells_gaps_with_sea.
+
+
+
+initial_blue_cells_determination :-
+    surround_1_celled_islands_with_sea,
+    fill_one_celled_gaps_with_sea,
+    fill_diagonally_adjacent_fixed_cells_gaps_with_sea.
+
+dynamic_solve :-
+    initial_blue_cells_determination,
+    dynamic_solve_recursive.
+
+dynamic_solve_recursive:-
+    attempt_grid_solve,
+    print_board,
+    (ready_to_validate -> 
+    (validate -> writeln('Valid solution'); writeln('Invalid solution') %dynamic_solve_recursive
+    ); 
+    dynamic_solve_recursive
+    ).
 
 attempt_grid_solve :-
-    findall([R, C], (row(R), column(C), \+ solve_cell_certain(R, C, _), \+ fxd_cell(R, C, _)), UnsolvedCells),
+    findall([R, C], (fxd_cell(R, C, _)), UnsolvedCells),
     solve_cells(UnsolvedCells).
 
 solve_cells([]).
@@ -244,20 +325,6 @@ attempt_cell_solve_blue(R, C) :-
 
 attempt_cell_solve_green(R, C) :-
     set_green_at(R, C), setup_islands, one_fixed_cell_in_island.
-
-dynamic_solve :-
-    initial_blue_cells_determination,
-    dynamic_solve_recursive.
-
-dynamic_solve_recursive:-
-    attempt_grid_solve,
-    print_board,
-    (ready_to_validate -> 
-    (validate -> writeln('Valid solution'); writeln('Invalid solution') %dynamic_solve_recursive
-    ); 
-    dynamic_solve_recursive
-    ).
-
 
 initialize_game :- 
     retractall(solve_cell(_,_,_)),
