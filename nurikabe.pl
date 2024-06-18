@@ -55,7 +55,10 @@ is_green_cell(R, C) :- fxd_cell(R, C, _); solve_cell(R, C, green).
 is_blue_cell(R, C) :- solve_cell(R, C, blue).
 is_cell_of_color(R, C, Color) :- (Color == green -> is_green_cell(R, C); Color == blue -> is_blue_cell(R, C)).
 get_cell_color(R, C, Color) :- (is_green_cell(R, C), Color = green; is_blue_cell(R, C), Color = blue).
+empty_cell(R, C) :- \+is_green_cell(R, C), \+is_blue_cell(R, C).
 
+are_cells_of_color([], _).
+are_cells_of_color([[R, C]|T], Color) :- is_cell_of_color(R, C, Color), are_cells_of_color(T, Color).
 % طباعة الرقعة
 print_board :-
     nl,
@@ -262,38 +265,51 @@ fill_one_celled_gaps_with_sea:-
 fill_one_celled_gaps_with_sea.
 
 diagonally_adjacent_fixed_cell_to_the_upper_left(FixedCellRow, FixedCellColumn) :-
-    R is FixedCellRow - 1
+    R is FixedCellRow - 1,
     C is FixedCellColumn - 1,
     fxd_cell(R, C, _).
 
-semi_adjacent_fixed_cell_to_the_left(FixedCellRow, FixedCellColumn) :-
-    C is FixedCellColumn - 2,
-    fxd_cell(FixedCellRow, C, _).
+diagonally_adjacent_fixed_cell_to_the_upper_right(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow - 1,
+    C is FixedCellColumn + 1,
+    fxd_cell(R, C, _).
 
-semi_adjacent_fixed_cell_to_the_bottom(FixedCellRow, FixedCellColumn) :-
-    R is FixedCellRow + 2,
-    fxd_cell(R, FixedCellColumn, _).
+diagonally_adjacent_fixed_cell_to_the_lower_left(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow + 1,
+    C is FixedCellColumn - 1,
+    fxd_cell(R, C, _).
 
-semi_adjacent_fixed_cell_to_the_top(FixedCellRow, FixedCellColumn) :-
-    R is FixedCellRow - 2,
-    fxd_cell(R, FixedCellColumn, _).
+diagonally_adjacent_fixed_cell_to_the_lower_right(FixedCellRow, FixedCellColumn) :-
+    R is FixedCellRow + 1,
+    C is FixedCellColumn + 1,
+    fxd_cell(R, C, _).
 
 fill_diagonally_adjacent_fixed_cells_gaps_with_sea:-
         fxd_cell(R, C, _),
         (
+            (diagonally_adjacent_fixed_cell_to_the_upper_left(R, C), R1 is R, C1 is C - 1, R2 is R - 1, C2 is C, set_cells_with_certain_color([[R1, C1], [R2, C2]], blue));
+            (diagonally_adjacent_fixed_cell_to_the_upper_right(R, C), R1 is R, C1 is C + 1, R2 is R - 1, C2 is C, set_cells_with_certain_color([[R1, C1], [R2, C2]], blue));
+            (diagonally_adjacent_fixed_cell_to_the_lower_left(R, C), R1 is R, C1 is C - 1, R2 is R + 1, C2 is C, set_cells_with_certain_color([[R1, C1], [R2, C2]], blue));
+            (diagonally_adjacent_fixed_cell_to_the_lower_right(R, C), R1 is R, C1 is C + 1, R2 is R + 1, C2 is C, set_cells_with_certain_color([[R1, C1], [R2, C2]], blue))
         )
-        adjacent_cells_to_cell(R, C, AdjacentCells),
-        set_cells_with_certain_color(AdjacentCells, blue),
         fail.
 
 fill_diagonally_adjacent_fixed_cells_gaps_with_sea.
 
 
+fill_empty_cells_surrounded_with_sea:- 
+    empty_cell(R, C),
+    adjacent_cells_to_cell(R, C, AdjacentCells),
+    are_cells_of_color(AdjacentCells, blue),
+    set_blue_certain_at(R, C),
+    fail.    
+fill_empty_cells_surrounded_with_sea.
 
 initial_blue_cells_determination :-
     surround_1_celled_islands_with_sea,
     fill_one_celled_gaps_with_sea,
-    fill_diagonally_adjacent_fixed_cells_gaps_with_sea.
+    fill_diagonally_adjacent_fixed_cells_gaps_with_sea,
+    fill_empty_cells_surrounded_with_sea.
 
 dynamic_solve :-
     initial_blue_cells_determination,
