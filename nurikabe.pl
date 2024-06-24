@@ -67,7 +67,6 @@ are_cells_of_color([[R, C]|T], Color) :- is_cell_of_color(R, C, Color), are_cell
 
 are_empty_cells([]).
 are_empty_cells([[R, C]|T]) :- empty_cell(R, C), are_empty_cells(T).
-
 % طباعة الرقعة
 print_board :-
     nl,
@@ -96,7 +95,7 @@ adjacent_cells_to_cell(Row, Column, AdjacentCells) :-
             (R is Row, C is Column - 1, C > 0); 
             (R is Row, C is Column + 1, C =< Size)
         ), AdjacentCells).
-
+        
 % ايجاد الخلايا المجاورة لخلية من نفس اللون
 adjacent_cells_to_cell_of_the_same_color(Row, Column, AdjacentCells) :-
     grid_size(Size),
