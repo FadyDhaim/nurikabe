@@ -111,20 +111,20 @@ adjacent_cells_to_cell_of_the_same_color(Row, Column, AdjacentCells) :-
 
 
 % ايجاد مجموعة الخلايا الموصلة ان كان جزيرة او بحر
-connected_cells_to_cell(Row, Column, Visited, FinalVisited) :-
-    \+ list_of_lists_contains_list([Row, Column], Visited),
-    list_push_element([Row, Column], Visited, NewVisited),
-    adjacent_cells_to_cell_of_the_same_color(Row, Column, AdjacentCells),
+connected_cells_to_cell(R, C, Visited, FinalVisited) :-
+    \+ list_of_lists_contains_list([R, C], Visited),
+    list_push_element([R, C], Visited, NewVisited),
+    adjacent_cells_to_cell_of_the_same_color(R, C, AdjacentCells),
     process_adjacent_cells(AdjacentCells, NewVisited, FinalVisited).
 
 process_adjacent_cells([], Visited, Visited).
-process_adjacent_cells([[AdjacentCellRow, AdjacentCellColumn] | RestOfAdjacentCells], Visited, FinalVisited) :-
-    connected_cells_to_cell(AdjacentCellRow, AdjacentCellColumn, Visited, UpdatedVisited),
-    process_adjacent_cells(RestOfAdjacentCells, UpdatedVisited, FinalVisited).
+process_adjacent_cells([[AdjR, AdjC] | RestOfAdjCells], Visited, FinalVisited) :-
+    connected_cells_to_cell(AdjR, AdjC, Visited, UpdatedVisited),
+    process_adjacent_cells(RestOfAdjCells, UpdatedVisited, FinalVisited).
 
 %بحال ازا الخلية يلي بالاستدعاء يلي فوق زرناها قبل ف برجع فولس ومنيجي لهون لنكفي عالباقي
-process_adjacent_cells([_ | RestOfAdjacentCells], Visited, FinalVisited) :-
-    process_adjacent_cells(RestOfAdjacentCells, Visited, FinalVisited).
+process_adjacent_cells([_ | RestOfAdjCells], Visited, FinalVisited) :-
+    process_adjacent_cells(RestOfAdjCells, Visited, FinalVisited).
 
 
 number_of_blue_cells(N) :-
@@ -166,7 +166,6 @@ island_number_equals_size :-
     fxd_cell(FixedCellRow, FixedCellColumn, Number),
     Number =:= NumberOfIslandCells.
     
-
 
 sea_upper_left_2_by_2(BlueCellRow, BlueCellColumn) :-
     findall([R, C],
@@ -231,7 +230,7 @@ no_2_by_2_sea :-
     NumberOf2By2Blocks =:= 0.
 
 
-validate :- setup_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
+solved :- setup_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
 
 ready_to_validate :- row(R), column(C), \+empty_cell(R, C).
 
@@ -369,7 +368,7 @@ initialize_game :-
     retractall(island(_,_)).
 
 
-print_and_validate_static :- print_board, (validate -> writeln('Valid solution'); writeln('Invalid solution')).
+print_and_validate_static :- print_board, (solved -> writeln('Valid solution'); writeln('Invalid solution')).
 start_static :- initialize_game, static_solve, print_and_validate_static. 
 start_dynamic :- initialize_game, dynamic_solve.
 
