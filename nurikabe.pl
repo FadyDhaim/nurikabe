@@ -224,14 +224,14 @@ no_2_by_2_sea :-
         sea_upper_right_2_by_2(R, C);
         sea_lower_left_2_by_2(R, C);
         sea_lower_right_2_by_2(R, C)
-        )
+            )
         ),
         Blocks2By2),
     list_length(Blocks2By2, NumberOf2By2Blocks),
     NumberOf2By2Blocks =:= 0.
 
 
-solved :- setup_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
+solved :- ready_to_validate, setup_islands, one_sea, one_fixed_cell_in_island, island_number_equals_size, no_2_by_2_sea.
 
 ready_to_validate :- row(R), column(C), \+empty_cell(R, C).
 
@@ -375,7 +375,7 @@ start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
 
-:- initialization(start_static).
+:- initialization(start_dynamic).
 
 
 static_solve :-
