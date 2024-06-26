@@ -149,12 +149,12 @@ one_sea :-
 
 one_fixed_cell_in_island :-
     island(IslandCells, _),
-    findall([FixedCellRow, FixedCellColumn],
+    findall([FixedRow, FixedColumn],
         (
-        row(FixedCellRow),
-        column(FixedCellColumn),
-        list_of_lists_contains_list([FixedCellRow, FixedCellColumn], IslandCells),
-        fxd_cell(FixedCellRow, FixedCellColumn, _)
+        row(FixedRow),
+        column(FixedColumn),
+        fxd_cell(FixedRow, FixedColumn, _),
+        list_of_lists_contains_list([FixedRow, FixedColumn], IslandCells)
     )
         ,FixedCellsInIsland),
         list_length(FixedCellsInIsland, NumberOfFixedCellsInIsland),
@@ -163,8 +163,8 @@ one_fixed_cell_in_island :-
 island_number_equals_size :-
     island(IslandCells, NumberOfIslandCells),
     find_fixed_cell_in_island(IslandCells, FixedCell),
-    FixedCell = [FixedCellRow, FixedCellColumn],
-    fxd_cell(FixedCellRow, FixedCellColumn, Number),
+    FixedCell = [FixedRow, FixedColumn],
+    fxd_cell(FixedRow, FixedColumn, Number),
     Number =:= NumberOfIslandCells.
     
 
