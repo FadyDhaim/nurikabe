@@ -3,8 +3,12 @@ row(1). row(2). row(3). row(4). row(5). row(6). row(7). row(8). row(9).
 column(1). column(2). column(3). column(4). column(5). column(6). column(7). column(8). column(9).
 grid_size(9).
 
-fxd_cell(1, 2, 3). fxd_cell(1, 4, 6). fxd_cell(4, 1, 2). fxd_cell(4, 3, 4). fxd_cell(4, 5, 4). 
-fxd_cell(6, 5, 1). fxd_cell(6, 7, 3). fxd_cell(6, 9, 2). fxd_cell(9, 6, 6). fxd_cell(9, 8, 4).
+% الرقعة الاولى
+% fxd_cell(1, 2, 3). fxd_cell(1, 4, 6). fxd_cell(4, 1, 2). fxd_cell(4, 3, 4). fxd_cell(4, 5, 4). 
+% fxd_cell(6, 5, 1). fxd_cell(6, 7, 3). fxd_cell(6, 9, 2). fxd_cell(9, 6, 6). fxd_cell(9, 8, 4).
+% الرقعة التانية
+fxd_cell(1, 7, 3). fxd_cell(2, 2, 2). fxd_cell(3, 1, 1). fxd_cell(3, 7, 1). fxd_cell(5, 3, 6). 
+fxd_cell(5, 7, 3). fxd_cell(7, 3, 6). fxd_cell(7, 9, 1). fxd_cell(8, 8, 6). fxd_cell(9, 3, 3).
 
 :- dynamic solve_cell/3.
 :- dynamic solve_cell_certain/3.
@@ -303,13 +307,13 @@ fill_diagonally_adjacent_fixed_cells_gaps_with_sea:-
 fill_diagonally_adjacent_fixed_cells_gaps_with_sea.
 
 
-fill_empty_cells_surrounded_with_sea:- 
+fill_empty_cells_surrounded__sea:- 
     empty_cell(R, C),
     adjacent_cells_to_cell(R, C, AdjacentCells),
     are_cells_of_color(AdjacentCells, blue),
     set_blue_certain_at(R, C),
     fail.
-fill_empty_cells_surrounded_with_sea.
+fill_empty_cells_surrounded__sea.
 
 
 one_empty_cell_adjacent_to_a_blue_cell(R, C) :- 
@@ -352,7 +356,7 @@ initial_blue_cells_determination :-
     surround_1_celled_islands_with_sea,
     fill_one_celled_gaps_with_sea_for_all_fixed_cells,
     fill_diagonally_adjacent_fixed_cells_gaps_with_sea,
-    fill_empty_cells_surrounded_with_sea,
+    fill_empty_cells_surrounded__sea,
     wall_expansion_ie_one_empty_cell_adjacent_to_a_blue_cell.
 
 initial_green_cells_determination :-
@@ -370,7 +374,8 @@ initialize_game :-
 
 
 print_and_validate_static :- print_board, (solved -> writeln('Valid solution'); writeln('Invalid solution')).
-start_static :- initialize_game, static_solve, print_and_validate_static. 
+start_static_1 :- initialize_game, static_solve_1, print_and_validate_static. 
+start_static_2 :- initialize_game, static_solve_2, print_and_validate_static. 
 start_dynamic :- initialize_game, dynamic_solve.
 
 :- set_prolog_flag(answer_write_options, [max_depth(0)]).
@@ -378,7 +383,7 @@ start_dynamic :- initialize_game, dynamic_solve.
 :- initialization(start_dynamic).
 
 
-static_solve :-
+static_solve_1 :-
     set_green_at(1, 1),
     set_blue_at(1, 3),
     set_blue_at(1, 5),
@@ -458,3 +463,85 @@ static_solve :-
     set_green_at(9, 5),
     set_blue_at(9, 7),
     set_green_at(9, 9).
+
+static_solve_2 :-
+    set_blue_at(1, 2),
+    set_blue_at(1, 1),
+    set_blue_at(1, 3),
+    set_blue_at(1, 4),
+    set_blue_at(1, 5),
+    set_blue_at(1, 6),
+    set_green_at(1, 7),
+    set_green_at(1, 8),
+    set_blue_at(1, 9),
+    set_blue_at(2, 1),
+    set_green_at(2, 3),
+
+    set_blue_at(2, 4),
+    set_green_at(2, 5),
+    set_blue_at(2, 6),
+    set_blue_at(2, 7),
+    set_green_at(2, 8),
+    set_blue_at(2, 9),
+    set_blue_at(3, 2),
+    set_blue_at(3, 3),
+
+    set_blue_at(3, 4),
+    set_green_at(3, 5),
+    set_blue_at(3, 6),
+    set_blue_at(3, 8),
+    set_blue_at(3, 9),
+    set_blue_at(4, 1),
+    set_blue_at(4, 2),
+
+    set_green_at(4, 3),
+    set_green_at(4, 4),
+    set_green_at(4, 5),
+    set_blue_at(4, 6),
+    set_blue_at(4, 7),
+    set_green_at(4, 8),
+    set_blue_at(4, 9),
+    set_green_at(5, 1),
+    set_blue_at(5, 2),
+
+    set_blue_at(5, 4),
+    set_blue_at(5, 5),
+    set_blue_at(5, 6),
+    set_green_at(5, 8),
+    set_blue_at(5, 9),
+    set_green_at(6, 1),
+    set_blue_at(6, 2),
+
+    set_blue_at(6, 3),
+    set_blue_at(6, 4),
+    set_green_at(6, 5),
+    set_blue_at(6, 6),
+    set_blue_at(6, 7),
+    set_blue_at(6, 8),
+    set_blue_at(6, 9),
+    set_green_at(7, 1),
+    set_green_at(7, 2),
+
+    set_blue_at(7, 4),
+    set_green_at(7, 5),
+    set_green_at(7, 6),
+    set_green_at(7, 7),
+    set_blue_at(7, 8),
+    set_green_at(8, 1),
+    set_blue_at(8, 2),
+
+    set_blue_at(8, 3),
+    set_blue_at(8, 4),
+    set_blue_at(8, 5),
+    set_blue_at(8, 6),
+    set_green_at(8, 7),
+    set_blue_at(8, 9),
+    set_blue_at(9, 1),
+    set_blue_at(9, 2),
+
+    set_green_at(9, 4),
+    set_green_at(9, 5),
+    set_blue_at(9, 6),
+    set_blue_at(9, 7),
+    set_blue_at(9, 8),
+    set_blue_at(9, 9).

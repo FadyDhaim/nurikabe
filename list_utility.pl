@@ -11,11 +11,10 @@ list_equals_list_helper([], []) :- true.
 list_equals_list_helper([H1|T1], [H2|T2]):-H1 =:= H2, list_equals_list_helper(T1, T2).
 
 list_of_lists_contains_list(_, []) :- false.
-% Check if a list of lists contains a specific list
 list_of_lists_contains_list(List, [H|_]) :- 
-    list_equals_list(List, H). % If the head matches, succeed
+    list_equals_list(List, H). 
 list_of_lists_contains_list(List, [_|T]) :- 
-    list_of_lists_contains_list(List, T). % Otherwise, check the tail
+    list_of_lists_contains_list(List, T). 
 
 
 list_length([],0).
